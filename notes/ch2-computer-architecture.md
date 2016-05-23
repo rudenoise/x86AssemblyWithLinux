@@ -64,4 +64,20 @@ Address:2002, Index:4 (0, 1, 2, 3, 4) -> value @ 2006
 Address:2002, Index:3, Multiplier:4 (in bytes, 4 = 1 word) -> 2014
 (2002 + (3 * 4))
 
+### Indirect Addressing Mode
+_follow a pointer (an address for a location stored in a register) to a location and access the value there_
 
+```
+A = 2000
+
+(Effective address = contents of location A)
+```
+
+### Base Pointer Addressing Mode
+
+```
+Register A (base)   = 1000
+Constant B (offset) = 8
+
+MOV C, [A,B] => C = contents of location A+B 
+```
