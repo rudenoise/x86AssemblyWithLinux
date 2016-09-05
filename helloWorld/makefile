@@ -6,7 +6,5 @@ hello.out: hello.o
 hello.o: hello.s
 	as hello.s -o hello.o
 
-
-     
 clean:
 	rm hello.o hello.out
