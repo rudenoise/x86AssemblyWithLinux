@@ -5,33 +5,40 @@ _start:
 	# eax -> edx and edi and esi
 	# are general purpose registers
 
-	movl  $4, %eax	# we'll be using 4 registers?
-									# 4 means running?
-									# 4 means print ascii chars in ecx
-									# until len/edx?
+	movl  $4, %eax		# set a 4/write system call
+										# when an interrupt is sent
+										# (with the syscall vector id)
+										# eax is checked for the system call
+										# 4:	write means write-to-file
+										#			in this case
+										#
+										#			ebx must contain the file descriptor
+										#			ecx must contain the buffer start
+										#			edx must contain the buffer size/length
+										#
+	movl  $1, %ebx		# set file descriptor
+										#     in this case
+										#				1 is the stdout file
+										#			0 would be stdin
+										#			2 would be stderr
 
-	movl  $1, %ebx	# set default error status code?
-									# returned if the following fails?
-
-	movl  $msg, %ecx	# put msg in ecx
-	movl  $len, %edx	# put length of message in edx
+	movl  $msg, %ecx	# set buffer start
+	movl  $len, %edx	# set buffer length
 
 	int   $0x80				# wake up the kernel and run
-										# acknowledges status code of
-										# eax = 4, running?
+										# acknowledges syustem call id
+										# eax = 4 -> write
 
-	movl  $1, %eax		# this is the linux kernel
-										# command number (system call)
-										# for exiting a program
+	movl  $1, %eax		# set a 1/exit system call id
+										#		ebx mustr contain status/exit code
 
-	movl  $0, %ebx		# this is the status number we
-										# will return to the operating
-										# system. Change this and it will
-										# return different things to
-										# echo $?
+	movl  $0, %ebx		# set status code
+										# 0 = success
 
-	int	$0x80					# this wakes up the kernel to run
-										# the exit command
+	int	$0x80					# this wakes up the kernel
+										# send interrupt
+										# system call of 1/exit will be found
+										# exit code of 0/success will return
 
 .data
 msg:
