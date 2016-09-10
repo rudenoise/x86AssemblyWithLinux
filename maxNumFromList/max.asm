@@ -59,7 +59,7 @@ loop_exit:
 	# set buffer start
 	movl $maximum, %ecx
 	# set buffer length to one byte
-	movl $len, %edx
+	movl $4, %edx
 	# send interput
 	int $0x80
 	# set status code
