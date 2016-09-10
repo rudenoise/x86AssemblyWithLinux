@@ -5,6 +5,9 @@
 .section .data
 	data_items:
 		.long 3,67,34,222,45,75,54,34,44,33,22,11,66,0
+	maximum:
+	 .short 0
+	 len = . - maximum
 
 .section .text
 
@@ -47,9 +50,20 @@ start_loop:
 	jmp start_loop
 
 loop_exit:
-	# ebx is the status code to exit and contains the maximum
-	# number found
-	# eax is holds the system call id
+	# put largest number into memory
+	movl %ebx, maximum
+	# set syscall id for write to filr
+	movl $4, %eax
+	# set stdout as the destination file
+	movl $1, %ebx
+	# set buffer start
+	movl $maximum, %ecx
+	# set buffer length to one byte
+	movl $len, %edx
+	# send interput
+	int $0x80
+	# set status code
+	movl  $0, %ebx
 	# id 1 is the exit system call id
 	movl $1, %eax
 	# send interrupt
