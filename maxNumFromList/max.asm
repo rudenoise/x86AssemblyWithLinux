@@ -4,10 +4,11 @@
 # the data
 .section .data
 	data_items:
-		.long 3,67,34,222,45,75,54,34,44,33,22,11,66,0
+		# use single ints to make ascii converson easy
+		.long 1,2,3,4,5,6,7,8,9,0
 	maximum:
-		.short 0
-		len = . - maximum
+		# 48 is ascii 0, this will be overwritten
+		.byte 48
 
 .section .text
 
@@ -50,16 +51,18 @@ start_loop:
 	jmp start_loop
 
 loop_exit:
+	# add 48 to the number to bring it into ascii range
+	addl $48, %ebx
 	# put largest number into memory
 	movl %ebx, maximum
-	# set syscall id for write to filr
+	# set syscall id for write to file
 	movl $4, %eax
 	# set stdout as the destination file
 	movl $1, %ebx
 	# set buffer start
 	movl $maximum, %ecx
 	# set buffer length to one byte
-	movl $4, %edx
+	movl $1, %edx
 	# send interput
 	int $0x80
 	# set status code
