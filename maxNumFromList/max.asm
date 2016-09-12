@@ -15,7 +15,6 @@
 .globl _start
 
 _start:
-
 	# edi to hold current position in list
 	movl $0, %edi
 
@@ -71,3 +70,4 @@ loop_exit:
 	movl $1, %eax
 	# send interrupt
 	int $0x80
+
