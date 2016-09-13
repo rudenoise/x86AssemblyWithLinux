@@ -33,7 +33,7 @@ start_loop:
 	# check if the current element (eax) is 0
 	cmpl $0, %eax
 	# if it is 0 then exit loop
-	je loop_exit
+	je to_ascii
 	# otherwise load the next value
 	# move the current position (edi) on by one
 	incl %edi
@@ -49,11 +49,14 @@ start_loop:
 	# then start the loop again
 	jmp start_loop
 
-loop_exit:
+to_ascii:
 	# add 48 to the number to bring it into ascii range
 	addl $48, %ebx
 	# put largest number into memory
 	movl %ebx, maximum
+	jmp write_out
+
+write_out:
 	# set syscall id for write to file
 	movl $4, %eax
 	# set stdout as the destination file
@@ -64,6 +67,9 @@ loop_exit:
 	movl $1, %edx
 	# send interput
 	int $0x80
+	jmp the_end
+
+the_end:
 	# set status code
 	movl  $0, %ebx
 	# id 1 is the exit system call id
