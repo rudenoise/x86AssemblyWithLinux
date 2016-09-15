@@ -85,8 +85,6 @@ write_out:
 	movl $'\n', maximum(,%edi,4)
 	# move pos in array up
 	incl %edi
-	# move pos in array up
-	incl %edi
 	# set syscall id for write to file
 	movl $4, %eax
 	# set stdout as the destination file
