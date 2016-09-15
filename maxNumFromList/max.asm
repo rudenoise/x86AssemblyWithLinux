@@ -8,9 +8,9 @@
 		.long 1,222,3,472,5,6,7,8,99,0
 	maximum:
 		# 48 is ascii 0, this will be overwritten
-		.byte 48
+		.long 48
 	maxrtn:
-		.byte 0
+		.long 0
 
 .section .text
 
