@@ -5,10 +5,12 @@
 .section .data
 	data_items:
 		# use single ints to make ascii converson easy
-		.long 1,2,3,4,5,6,7,8,9,0
+		.long 1,222,3,472,5,6,7,8,99,0
 	maximum:
 		# 48 is ascii 0, this will be overwritten
 		.byte 48
+	maxrtn:
+		.byte 0
 
 .section .text
 
@@ -50,21 +52,49 @@ start_loop:
 	jmp start_loop
 
 to_ascii:
+	# edi to hold current position in ascii list
+	movl $0, %edi
+	# set largest to be divend
+	movl %ebx, %eax
+	# set divisor
+	movl $10, %ebx
+	jmp ascii_loop
+
+ascii_loop:
+	# divide largest number by 10
+	# set remainder to 0
+	movl $0, %edx
+	# do division
+	divl %ebx
+	# use the remainder to convert to ascii
 	# add 48 to the number to bring it into ascii range
-	addl $48, %ebx
-	# put largest number into memory
-	movl %ebx, maximum
-	jmp write_out
+	addl $48, %edx
+	# put ascii diget/byte into memory
+	movl %edx, maximum(,%edi,4)
+	# move pos in array up
+	incl %edi
+	# compare result to 0
+	cmpl $0, %eax
+	# if 0 jump to write out
+	je write_out
+	# otherwise loop
+	jmp ascii_loop
 
 write_out:
+	# put line break \n into memory
+	movl $'\n', maximum(,%edi,4)
+	# move pos in array up
+	incl %edi
+	# move pos in array up
+	incl %edi
 	# set syscall id for write to file
 	movl $4, %eax
 	# set stdout as the destination file
 	movl $1, %ebx
 	# set buffer start
 	movl $maximum, %ecx
-	# set buffer length to one byte
-	movl $1, %edx
+	# set buffer length to 4 x edi (pos in array)
+	imul $4, %edi, %edx
 	# send interput
 	int $0x80
 	jmp the_end
