@@ -6,10 +6,10 @@
 	data_items:
 		# use single ints to make ascii converson easy
 		.long 1,222,3,472,5,6,7,8,99,0
-	maximum:
+	backwards:
 		# 48 is ascii 0, this will be overwritten
-		.long 48
-	maxrtn:
+		.long 0
+	output:
 		.long 0
 
 .section .text
@@ -70,35 +70,52 @@ ascii_loop:
 	# add 48 to the number to bring it into ascii range
 	addl $48, %edx
 	# put ascii diget/byte into memory
-	movl %edx, maximum(,%edi,4)
+	movl %edx, backwards(,%edi,4)
 	# move pos in array up
 	incl %edi
 	# compare result to 0
 	cmpl $0, %eax
 	# if 0 jump to write out
-	je write_out
+	je setup_reverse
 	# otherwise loop
 	jmp ascii_loop
 
 setup_reverse:
+	# set index on output
 	movl $0, %esi
-	movl maximum(,%edi,4), %eax
-	movl $eax, maxrtn(,%esi,4)
+	jmp reverse
+
+reverse:
+	# fisrt
+	decl %edi
+	movl backwards(,%edi,4), %eax
+	movl %eax, output(,%esi,4)
+	incl %esi
+	# second
+	decl %edi
+	movl backwards(,%edi,4), %eax
+	movl %eax, output(,%esi,4)
+	incl %esi
+	# third
+	decl %edi
+	movl backwards(,%edi,4), %eax
+	movl %eax, output(,%esi,4)
+	incl %esi
 	jmp write_out
 
 write_out:
 	# put line break \n into memory
-	movl $'\n', maximum(,%edi,4)
+	movl $'\n', output(,%esi,4)
 	# move pos in array up
-	incl %edi
+	incl %esi
 	# set syscall id for write to file
 	movl $4, %eax
 	# set stdout as the destination file
 	movl $1, %ebx
 	# set buffer start
-	movl $maximum, %ecx
+	movl $output, %ecx
 	# set buffer length to 4 x edi (pos in array)
-	imul $4, %edi, %edx
+	imul $4, %esi, %edx
 	# send interput
 	int $0x80
 	jmp the_end
