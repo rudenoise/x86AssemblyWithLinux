@@ -80,6 +80,12 @@ ascii_loop:
 	# otherwise loop
 	jmp ascii_loop
 
+setup_reverse:
+	movl $0, %esi
+	movl maximum(,%edi,4), %eax
+	movl $eax, maxrtn(,%esi,4)
+	jmp write_out
+
 write_out:
 	# put line break \n into memory
 	movl $'\n', maximum(,%edi,4)
