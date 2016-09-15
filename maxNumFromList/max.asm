@@ -8,9 +8,9 @@
 		.long 1,222,3,472,5,6,7,8,99,0
 	backwards:
 		# 48 is ascii 0, this will be overwritten
-		.long 0
+		.long 48
 	output:
-		.long 0
+		.long 48
 
 .section .text
 
@@ -85,12 +85,54 @@ setup_reverse:
 	movl $0, %esi
 	jmp reverseC
 
+reverseE:
+	movl $48, %eax
+	movl %eax, output(,%esi,4)
+	incl %esi
+	incl %eax
+	movl %eax, output(,%esi,4)
+	incl %esi
+	incl %eax
+	movl %eax, output(,%esi,4)
+	incl %esi
+	jmp write_out
+
+reverseD:
+	# copy last index of backwards
+	movl %edi, %eax
+	subl $1, %eax
+	movl backwards(,%eax,4), %ebx
+	movl %ebx, output(,%esi,4)
+	incl %esi
+	#
+	movl %edi, %eax
+	subl $2, %eax
+	movl backwards(,%eax,4), %ebx
+	movl %ebx, output(,%esi,4)
+	incl %esi
+	#
+	movl %edi, %eax
+	subl $3, %eax
+	movl backwards(,%eax,4), %ebx
+	movl %ebx, output(,%esi,4)
+	incl %esi
+	jmp write_out
+
+
 reverseC:
 	# copy last index of backwards
 	movl %edi, %eax
-	subl $1, %eax # should be index 2 - 4 works
-	subl $1, %eax # should be index 1 - 7 works
+	# take from b and put in a
+	decl %eax # should be index 1 - 7 works
 	decl %eax # should be index 0 - 2 works
+	decl %eax # should be index 2 - 4 works
+	movl backwards(,%eax,4), %ebx
+	movl %ebx, output(,%esi,4)
+	incl %esi
+	# take from b and put in a
+	movl backwards(,%eax,4), %ebx
+	movl %ebx, output(,%esi,4)
+	incl %esi
 	# take from b and put in a
 	movl backwards(,%eax,4), %ebx
 	movl %ebx, output(,%esi,4)
