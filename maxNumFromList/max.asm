@@ -83,21 +83,52 @@ ascii_loop:
 setup_reverse:
 	# set index on output
 	movl $0, %esi
-	jmp reverse
+	jmp reverseC
 
-reverse:
+reverseC:
+	# copy last index of backwards
+	movl %edi, %eax
+	subl $1, %eax # should be index 2 - 4 works
+	subl $1, %eax # should be index 1 - 7 works
+	decl %eax # should be index 0 - 2 works
+	# take from b and put in a
+	movl backwards(,%eax,4), %ebx
+	movl %ebx, output(,%esi,4)
+	incl %esi
+	jmp write_out
+
+reverseB:
+	#first
+	movl $2, %eax
+	movl backwards(,%eax,4), %eax
+	movl %eax, output(,%esi,4) # 4 works
+	incl %esi
+	# second
+	movl $1, %eax
+	movl backwards(,%eax,4), %eax
+	movl %eax, output(,%esi,4) # 4 broken
+	incl %esi
+	# third
+	movl $0, %eax
+	movl backwards(,%eax,4), %eax
+	movl %eax, output(,%esi,4) # 2 works
+	incl %esi
+	jmp write_out
+
+reverseA:
+	# can loop but can't figure out writing to array
 	# fisrt
-	decl %edi
+	decl %edi # should be index 2 - works
 	movl backwards(,%edi,4), %eax
 	movl %eax, output(,%esi,4)
 	incl %esi
 	# second
-	decl %edi
+	decl %edi # should be index 1 - shows 2
 	movl backwards(,%edi,4), %eax
 	movl %eax, output(,%esi,4)
 	incl %esi
 	# third
-	decl %edi
+	decl %edi # should be index 0 - works
 	movl backwards(,%edi,4), %eax
 	movl %eax, output(,%esi,4)
 	incl %esi
