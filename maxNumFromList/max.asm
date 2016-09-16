@@ -5,11 +5,9 @@
 .section .data
 	data_items:
 		# use single ints to make ascii converson easy
-		.long 1,222,3,472,5,6,7,8,99,0
-	backwards:
+		.long 1,23,3,4,54321,1,6,7,8,9,0
+	ascii_digits:
 		# 48 is ascii 0, this will be overwritten
-		.long 48
-	output:
 		.long 48
 
 .section .text
@@ -70,7 +68,7 @@ ascii_loop:
 	# add 48 to the number to bring it into ascii range
 	addl $48, %edx
 	# put ascii diget/byte into memory
-	movl %edx, backwards(,%edi,4)
+	movl %edx, ascii_digits(,%edi,4)
 	# move pos in array up
 	incl %edi
 	# compare result to 0
@@ -81,104 +79,40 @@ ascii_loop:
 	jmp ascii_loop
 
 setup_reverse:
-	# set index on output
+	# set start index
 	movl $0, %esi
-	jmp reverseC
+	# save length for later
+	movl %edi, %ecx
+	# set end index
+	decl %edi
+	# reverse the array
+	jmp reverse
 
-reverseE:
-	movl $48, %eax
-	movl %eax, output(,%esi,4)
+reverse:
+	# are the indecies at or passed the centre
+	cmpl %edi, %esi
+	# if yes write results
+	jge write_out
+	# otherwise swap
+	# copy value at left index
+	movl ascii_digits(,%esi, 4), %eax
+	# copy value at right index
+	movl ascii_digits(,%edi, 4), %ebx
+	# overwrite value at right index with value from left
+	movl %eax, ascii_digits(, %edi, 4)
+	# overwrite value at left index with value from right
+	movl %ebx, ascii_digits(, %esi, 4)
+	# move left index to centre
 	incl %esi
-	incl %eax
-	movl %eax, output(,%esi,4)
-	incl %esi
-	incl %eax
-	movl %eax, output(,%esi,4)
-	incl %esi
-	jmp write_out
-
-reverseD:
-	# copy last index of backwards
-	movl %edi, %eax
-	subl $1, %eax
-	movl backwards(,%eax,4), %ebx
-	movl %ebx, output(,%esi,4)
-	incl %esi
-	#
-	movl %edi, %eax
-	subl $2, %eax
-	movl backwards(,%eax,4), %ebx
-	movl %ebx, output(,%esi,4)
-	incl %esi
-	#
-	movl %edi, %eax
-	subl $3, %eax
-	movl backwards(,%eax,4), %ebx
-	movl %ebx, output(,%esi,4)
-	incl %esi
-	jmp write_out
-
-
-reverseC:
-	# copy last index of backwards
-	movl %edi, %eax
-	# take from b and put in a
-	decl %eax # should be index 1 - 7 works
-	decl %eax # should be index 0 - 2 works
-	decl %eax # should be index 2 - 4 works
-	movl backwards(,%eax,4), %ebx
-	movl %ebx, output(,%esi,4)
-	incl %esi
-	# take from b and put in a
-	movl backwards(,%eax,4), %ebx
-	movl %ebx, output(,%esi,4)
-	incl %esi
-	# take from b and put in a
-	movl backwards(,%eax,4), %ebx
-	movl %ebx, output(,%esi,4)
-	incl %esi
-	jmp write_out
-
-reverseB:
-	#first
-	movl $2, %eax
-	movl backwards(,%eax,4), %eax
-	movl %eax, output(,%esi,4) # 4 works
-	incl %esi
-	# second
-	movl $1, %eax
-	movl backwards(,%eax,4), %eax
-	movl %eax, output(,%esi,4) # 4 broken
-	incl %esi
-	# third
-	movl $0, %eax
-	movl backwards(,%eax,4), %eax
-	movl %eax, output(,%esi,4) # 2 works
-	incl %esi
-	jmp write_out
-
-reverseA:
-	# can loop but can't figure out writing to array
-	# fisrt
-	decl %edi # should be index 2 - works
-	movl backwards(,%edi,4), %eax
-	movl %eax, output(,%esi,4)
-	incl %esi
-	# second
-	decl %edi # should be index 1 - shows 2
-	movl backwards(,%edi,4), %eax
-	movl %eax, output(,%esi,4)
-	incl %esi
-	# third
-	decl %edi # should be index 0 - works
-	movl backwards(,%edi,4), %eax
-	movl %eax, output(,%esi,4)
-	incl %esi
-	jmp write_out
+	# move right index to centre
+	decl %edi
+	# go again
+	jmp reverse
 
 write_out:
+	movl %ecx, %esi
 	# put line break \n into memory
-	movl $'\n', output(,%esi,4)
+	movl $'\n', ascii_digits(,%esi,4)
 	# move pos in array up
 	incl %esi
 	# set syscall id for write to file
@@ -186,7 +120,7 @@ write_out:
 	# set stdout as the destination file
 	movl $1, %ebx
 	# set buffer start
-	movl $output, %ecx
+	movl $ascii_digits, %ecx
 	# set buffer length to 4 x edi (pos in array)
 	imul $4, %esi, %edx
 	# send interput
