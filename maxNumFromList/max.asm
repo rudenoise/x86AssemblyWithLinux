@@ -4,7 +4,6 @@
 # the data
 .section .data
 	data_items:
-		# use single ints to make ascii converson easy
 		.long 1,23,3,4,54321,1,6,7,8,9,0
 	ascii_digits:
 		# 48 is ascii 0, this will be overwritten
