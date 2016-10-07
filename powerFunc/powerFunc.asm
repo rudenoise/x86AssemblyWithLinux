@@ -1,3 +1,4 @@
+.code32
 # powerFunc
 # illustration of how functions work
 # will compute
@@ -12,9 +13,9 @@
 
 _start:
 	# push second argument onto the stack
-	pushq $3
+	pushl $3
 	# push first argument onto the stack
-	pushq $2
+	pushl $2
 	# call the power function
 	call power
 	# move the stack pointer back
@@ -22,26 +23,26 @@ _start:
 
 	# the answe is returned to eax
 	# save the first answer
-	pushq %rax
+	pushl %eax
 
 	# get ready for the next function call
 	# push second argument onto the stack
-	pushq $2
+	pushl $2
 	# push the first argument onto the stack
-	pushq $5
+	pushl $5
 	# call the function
 	call power
 	# move the stack pointer back
-	addq $8, %rsp
+	addl $8, %esp
 
 	# the second answer is now in %eax
 	# the first was saved to the stack
 	# the stack was rolled back so
 	# pop it into ebx
-	popq %rbx
+	popl %ebx
 
 	# add them together
-	addq %rax, %rbx
+	addl %eax, %ebx
 	# the result is in ebx
 
 	# ebx doubles as the exit code
@@ -72,32 +73,32 @@ _start:
 
 power:
 	# save the old base pointer
-	pushq %rbp
+	pushl %ebp
 	# make the stack pointer the base pointer
-	movq %rsp, %rbp
+	movl %esp, %ebp
 	# get space one the stack for local storage
-	subq $4, %rsp
+	subl $4, %esp
 
 	# put the first arg in ebx
-	movq 8(%rbp), %rbx
+	movl 8(%ebp), %ebx
 	# put second arg in ecx
-	movq 12(%rbp), %rcx
+	movl 12(%ebp), %ecx
 
 	# store the current result
-	movq %rbx, -4(%rbp)
+	movl %ebx, -4(%ebp)
 
 power_loop_start:
 	#compare the power to 1
-	cmpq $1, %rcx
+	cmpl $1, %ecx
 	# if match end
 	je end_power
 	# otherwise
 	# move the current result into eax
-	movq -4(%rbp), %rax
+	movl -4(%ebp), %eax
 	# multiply the current number by the base
-	imulq %rbx, %rax
+	imull %ebx, %eax
 	# store the current result
-	movq %rax, -4(%rbp)
+	movl %eax, -4(%ebp)
 
 	# decrease the power
 	decl %ecx
@@ -106,10 +107,10 @@ power_loop_start:
 
 end_power:
 	# move return value to eax
-	movq -4(%rbp), %rax
+	movl -4(%ebp), %eax
 	# restore the stack pointer
-	movq %rbp, %rsp
+	movl %ebp, %esp
 	# restore the base pointer
-	popq %rbp
+	popl %ebp
 	ret
-	movq -4(%rbp), %rax
+	movl -4(%ebp), %eax
